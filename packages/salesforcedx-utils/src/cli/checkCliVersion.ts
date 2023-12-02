@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2023, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
+// import { CliCommandExecutor } from './cliCommandExecutor';
+// import { CommandOutput } from './commandOutput';
+// import { SfCommandBuilder } from './sfCommandBuilder';
+// import { SfdxCommandBuilder } from './sfdxCommandBuilder';
+
+export enum CheckCliEnum {
+  validCli = 1,
+  outdatedSFDXVersion = 2,
+  onlySFv1 = 3,
+  cliNotInstalled = 4,
+  bothSFDXAndSFInstalled = 5
+}
+
+export class CheckCliVersion {
+  public async getSfdxCliVersion(): Promise<string> {
+    return 'result1';
+  }
+
+  public async getSfCliVersion(): Promise<string> {
+    return 'result2';
+  }
+
+  public async parseSfdxCliVersion(sfdxCliVersion: string): Promise<number[]> {
+    console.log(sfdxCliVersion);
+    return [-1];
+  }
+
+  public async parseSfCliVersion(sfCliVersion: string): Promise<number[]> {
+    console.log(sfCliVersion);
+    return [-2];
+  }
+
+  public async validateCliInstallationAndVersion(
+    sfdxCliVersionArray: number[],
+    sfCliVersionArray: number[]
+  ): Promise<Number> {
+    console.log(sfdxCliVersionArray);
+    console.log(sfCliVersionArray);
+    return 10;
+  }
+}

@@ -12,3 +12,5 @@ export { ForceConfigGet } from './forceConfigGet';
 export { GlobalCliEnvironment } from './globalCliEnvironment';
 export { OrgDisplay } from './orgDisplay';
 export { SfdxCommandBuilder } from './sfdxCommandBuilder';
+export { SfCommandBuilder } from './sfCommandBuilder';
+export { CheckCliEnum, CheckCliVersion } from './checkCliVersion';

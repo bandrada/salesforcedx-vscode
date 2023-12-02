@@ -4,7 +4,11 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { ensureCurrentWorkingDirIsProjectPath } from '@salesforce/salesforcedx-utils';
+import {
+  CheckCliEnum,
+  CheckCliVersion,
+  ensureCurrentWorkingDirIsProjectPath
+} from '@salesforce/salesforcedx-utils';
 import {
   ChannelService,
   getRootWorkspacePath,
@@ -95,12 +99,14 @@ import {
   ENABLE_SOBJECT_REFRESH_ON_STARTUP,
   ORG_OPEN_COMMAND
 } from './constants';
+import { SFDX_CLI_DOWNLOAD_LINK } from './constants';
 import { WorkspaceContext, workspaceContextUtils } from './context';
 import {
   decorators,
   disposeTraceFlagExpiration,
   showDemoMode
 } from './decorators';
+import { nls } from './messages';
 import { isDemoMode } from './modes/demo-mode';
 import { notificationService, ProgressNotification } from './notifications';
 import { orgBrowser } from './orgBrowser';
@@ -541,6 +547,7 @@ export async function activate(extensionContext: vscode.ExtensionContext) {
   // thus avoiding the potential errors surfaced when the libs call
   // process.cwd().
   ensureCurrentWorkingDirIsProjectPath(rootWorkspacePath);
+  await validateCliInstallationAndVersion();
   setNodeExtraCaCerts();
   await telemetryService.initializeService(extensionContext);
   showTelemetryMessage(extensionContext);
@@ -704,4 +711,51 @@ export function deactivate(): Promise<void> {
 
   disposeTraceFlagExpiration();
   return turnOffLogging();
+}
+
+export async function validateCliInstallationAndVersion(): Promise<void> {
+  // Check that the CLI is installed and that it is a supported version
+  // If there is no CLI or it is an unsupported version then the Core extension will not activate
+  const c = new CheckCliVersion();
+
+  const sfdxCliVersionString = await c.getSfdxCliVersion();
+  const sfCliVersionString = await c.getSfCliVersion();
+
+  const sfdxCliVersionArray = await c.parseSfdxCliVersion(sfdxCliVersionString);
+  const sfCliVersionArray = await c.parseSfCliVersion(sfCliVersionString);
+
+  const cliInstallationResult = await c.validateCliInstallationAndVersion(
+    sfdxCliVersionArray,
+    sfCliVersionArray
+  );
+
+  if (cliInstallationResult === CheckCliEnum.cliNotInstalled) {
+    showErrorNotification('sfdx_cli_not_found', [
+      SFDX_CLI_DOWNLOAD_LINK,
+      SFDX_CLI_DOWNLOAD_LINK
+    ]);
+    throw Error('No Salesforce CLI installed');
+  } else if (cliInstallationResult === CheckCliEnum.onlySFv1) {
+    showErrorNotification('sf_v1_not_supported', [
+      SFDX_CLI_DOWNLOAD_LINK,
+      SFDX_CLI_DOWNLOAD_LINK
+    ]);
+    throw Error('Only SF v1 installed');
+  } else if (cliInstallationResult === CheckCliEnum.outdatedSFDXVersion) {
+    showErrorNotification('sfdx_cli_not_supported', [
+      SFDX_CLI_DOWNLOAD_LINK,
+      SFDX_CLI_DOWNLOAD_LINK
+    ]);
+    throw Error('Outdated SFDX CLI version that is no longer supported');
+  } else if (cliInstallationResult === CheckCliEnum.bothSFDXAndSFInstalled) {
+    showErrorNotification('both_sfdx_and_sf', []);
+    throw Error('Both SFDX v7 and SF v2 are installed');
+  } else {
+    // do nothing - this is a valid CLI version that is compatible with the extensions
+  }
+}
+
+export function showErrorNotification(type: string, args: any[]) {
+  const showMessage = nls.localize(type, ...args);
+  vscode.window.showErrorMessage(showMessage);
 }

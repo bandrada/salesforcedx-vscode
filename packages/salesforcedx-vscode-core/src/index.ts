@@ -717,12 +717,14 @@ export async function validateCliInstallationAndVersion(): Promise<void> {
   // Check that the CLI is installed and that it is a supported version
   // If there is no CLI or it is an unsupported version then the Core extension will not activate
   const c = new CheckCliVersion();
+  const c1 = new CheckCliVersion();
+  console.log('*** using c1 ***');
 
   const sfdxCliVersionString = await c.getSfdxCliVersion();
-  const sfCliVersionString = await c.getSfCliVersion();
+  const sfCliVersionString = await c1.getSfCliVersion();
 
   const sfdxCliVersionArray = await c.parseSfdxCliVersion(sfdxCliVersionString);
-  const sfCliVersionArray = await c.parseSfCliVersion(sfCliVersionString);
+  const sfCliVersionArray = await c1.parseSfCliVersion(sfCliVersionString);
 
   const cliInstallationResult = await c.validateCliInstallationAndVersion(
     sfdxCliVersionArray,

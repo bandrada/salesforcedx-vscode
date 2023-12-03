@@ -43,10 +43,11 @@ export class CheckCliVersion {
         {}
       ).execute();
       // Save the result of the command
-      // const sfCmdOutput = new CommandOutput();
+      const sfCmdOutput = new CommandOutput();
       // const sfVersion = await sfCmdOutput.getCmdResult(sfExecution);
       // return sfVersion;
       console.log(sfExecution);
+      console.log(sfCmdOutput);
       return 'dummytext';
     } catch {
       return 'No SF CLI';

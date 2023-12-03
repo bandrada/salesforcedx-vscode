@@ -7,7 +7,7 @@
 
 import { CliCommandExecutor } from './cliCommandExecutor';
 import { CommandOutput } from './commandOutput';
-import { SfCommandBuilder } from './sfCommandBuilder';
+// import { SfCommandBuilder } from './sfCommandBuilder';
 import { SfdxCommandBuilder } from './sfdxCommandBuilder';
 
 export enum CheckCliEnum {
@@ -19,6 +19,7 @@ export enum CheckCliEnum {
 }
 
 export class CheckCliVersion {
+
   public async getSfdxCliVersion(): Promise<string> {
     try {
       // Execute the command "sfdx --version" in the Terminal
@@ -39,15 +40,13 @@ export class CheckCliVersion {
     try {
       // Execute the command "sf --version" in the Terminal
       const sfExecution = new CliCommandExecutor(
-        new SfCommandBuilder().withArg('--version').withJson().build(),
+        new SfdxCommandBuilder().withArg('--version').withJson().build(),
         {}
       ).execute();
       // Save the result of the command
       const sfCmdOutput = new CommandOutput();
       const sfVersion = await sfCmdOutput.getCmdResult(sfExecution);
-      // return sfVersion;
-      console.log(sfVersion);
-      return 'dummytext';
+      return sfVersion;
     } catch {
       return 'No SF CLI';
     }
